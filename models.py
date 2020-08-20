@@ -3,10 +3,9 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 import json
 import os
+from helper import *
 
 
-#database_path = os.environ['SQLALCHEMY_DATABASE_URI']
-#os.environ['DATABASE_URL']
 database_name = "casting_agency_app"
 local_db_path = "postgres://{}/{}".format('XinghouLiu@localhost:5432', database_name)
 db = SQLAlchemy()
@@ -30,19 +29,54 @@ def set_up_db(app):
 
     if 'DATABASE_URL' in os.environ:
       app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-      
+
     db.app = app
     db.init_app(app)
+
+
+class Actors(db.Model):
+  __tablename__ = 'Actors'
+
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String)
+  age = db.Column(db.Integer)
+  gender = db.Column(db.String)
+
+  def __init_(self, name, age, gender):
+    self.name = name
+    self.age = age
+    self.gender = gender
+  
+  def format(self):
+    return {
+      'id': self.id, 
+      'name': self.name,
+      'age': self.age,
+      'gender': self.gender
+    }
+
+
+#  ----------------------------------------------------------------  
+#  Reference table between Movie and Actor, 
+#  which is Many to Many relationship
+#  ----------------------------------------------------------------  
+movie_actor = db.Table('movie_actor', 
+    db.Column('movie_id', db.Integer, db.ForeignKey('Movies.id'), primary_key=True),
+    db.Column('actor_id', db.Integer, db.ForeignKey('Actors.id'), primary_key=True)
+)
+
 
 '''
 Movie
 Have title and release year
 '''
-class Movie(db.Model):  
-  __tablename__ = 'movie'
+class Movies(db.Model):  
+  __tablename__ = 'Movies'
 
-  id = Column(Integer, primary_key=True)
-  title = Column(String)
+  id = db.Column(db.Integer, primary_key=True)
+  title = db.Column(db.String)
+  release_date = db.Column(db.DateTime)
+  actors = db.relationship('Actors', secondary=movie_actor, backref=db.backref('movies', lazy=True))
 
   def __init__(self, title):
     self.title = title
@@ -50,4 +84,5 @@ class Movie(db.Model):
   def format(self):
     return {
       'id': self.id,
-      'title': self.title }
+      'title': self.title, 
+      'release_date':  dateTimeToString(self.release_date)}
