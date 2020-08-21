@@ -1,0 +1,17 @@
+<html>
+    <body>
+        <p>Casting Agency</p>
+        <p><button id="LoginButton">LOG IN</button></p>
+    </body>
+</html>
+
+<script> 
+    document.getElementById("LoginButton").addEventListener("click", clickLogIn);  
+
+    function clickLogIn(e) {
+        let callBackUrl = "https://casting-agency-xhl.herokuapp.com/api/login-result";
+        let callBackUrlDev = "http://127.0.0.1:5000/api/login-result";
+        let url = "https://coffee-x.eu.auth0.com/authorize?response_type=token&client_id=rrWjZ5b3EgJPRWuYiEILJ6k1geRnsMbi&redirect_uri=" +callBackUrl+ "&audience=casting-agency&state=STATE";
+        window.location.href = url;
+    }
+</script>

@@ -23,7 +23,7 @@ app = create_app()
 migrate = Migrate(app, db)
 
 @app.route('/')
-def get_greeting():
+def get_home():
     debug = False
     if app.debug:
         debug = True
@@ -33,6 +33,34 @@ def get_greeting():
         "Debug": debug,
         "Database": app.config['SQLALCHEMY_DATABASE_URI']
     })
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+@app.route('/api/login-result', methods=['GET'])
+def login_result():
+    return render_template('login-result.html')
+
+    '''
+    token_name = 'access_token'
+    token_value = ''
+
+    print("request: ", request.args)
+
+    url_components = request.url.split(sep=token_name, maxsplit=2)
+    print("URL components:", url_components)
+
+    if len(url_components) > 1: 
+        token_subs = url_components[1].split('&')
+        if len(token_subs) > 0: 
+            token_value = token_subs[0]
+    
+    return jsonify({
+        "Login": "Success!",
+        "JWT" : token_value
+    })
+    '''
 
 if __name__ == '__main__':
     app.run()
