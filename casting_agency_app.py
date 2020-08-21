@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, abort, jsonify
+from flask import Flask, render_template, request, abort, jsonify, session
 from models import db, set_up_db
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -34,8 +34,13 @@ def get_home():
         "Database": app.config['SQLALCHEMY_DATABASE_URI']
     })
 
-@app.route('/login')
+@app.route('/api/login')
 def login():
+    return render_template('login.html', call_back_url="https://www.a.com/")
+
+@app.route('/api/logout')
+def logout():
+    session.clear()
     return render_template('login.html')
 
 @app.route('/api/login-result', methods=['GET'])
