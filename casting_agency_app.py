@@ -4,6 +4,8 @@ from models import *
 from flask_migrate import Migrate
 from flask_cors import CORS
 from helper import *
+from consts import *
+
 
 def create_app(test_config=None):
 
@@ -37,7 +39,12 @@ def get_home():
 
 @app.route('/api/login')
 def login():
-    return render_template('login.html', call_back_url="https://www.a.com/")
+
+    call_back = AUTH_CALL_BACK_DEV
+    if KEY_AUTH_CALL_BACK in os.environ:
+        call_back = os.environ[KEY_AUTH_CALL_BACK]
+
+    return render_template('login.html', call_back_url=call_back)
 
 @app.route('/api/logout')
 def logout():
@@ -48,8 +55,14 @@ def logout():
 def login_result():
     return render_template('login-result.html')
 
+
 # Movies CRUD
 import route_movies
+
+
+# Actors CRUD
+import route_actors
+
 
 # Error Handling
 import route_errors

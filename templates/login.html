@@ -6,14 +6,21 @@
 </html>
 
 <script> 
-    document.getElementById("LoginButton").addEventListener("click", clickLogIn);  
-    let dynamic_callBack_url = document.getElementById("LoginButton").nodeValue
+    document.getElementById("LoginButton").addEventListener("click", clickLogIn); 
+
+    window.onload = function didLoad() {
+        let dynamic_callBack_url = document.getElementById("LoginButton").value
+        if ( dynamic_callBack_url != null ) {
+            console.log("Dynamic URL: " + dynamic_callBack_url)
+        }
+    }
 
     function clickLogIn(e) {
-        let callBackUrl = "https://casting-agency-xhl.herokuapp.com/api/login-result";
-        let callBackUrlDev = "http://127.0.0.1:5000/api/login-result";
-
+        var callBackUrl = "http://127.0.0.1:5000/api/login-result";
+        
+        let dynamic_callBack_url = document.getElementById("LoginButton").value
         if ( dynamic_callBack_url != null ) {
+            callBackUrl = dynamic_callBack_url
             console.log("Dynamic URL: " + dynamic_callBack_url)
         }
 

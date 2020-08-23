@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import json
 import os
 from helper import *
-
+from consts import *
 
 database_name = "casting_agency_app"
 local_db_path = "postgres://{}/{}".format('XinghouLiu@localhost:5432', database_name)
@@ -16,8 +16,8 @@ def set_up_db(app):
     if app.debug: 
       app.config['SQLALCHEMY_DATABASE_URI'] = local_db_path
 
-    if 'DATABASE_URL' in os.environ:
-      app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+    if KEY_DB_URL in os.environ:
+      app.config['SQLALCHEMY_DATABASE_URI'] = os.environ[KEY_DB_URL]
 
     db.app = app
     db.init_app(app)
@@ -43,6 +43,13 @@ class Actors(db.Model):
       'age': self.age,
       'gender': self.gender
     }
+
+  @staticmethod
+  def is_valide_payload(payload: dict):
+    if 'name' not in payload or 'age' not in payload or 'gender' not in payload:
+      return False
+    else:
+      return True
 
 
 #  ----------------------------------------------------------------  
@@ -78,3 +85,10 @@ class Movies(db.Model):
       'id': self.id,
       'title': self.title, 
       'release_date':  dateTimeToString(self.release_date)}
+
+  @staticmethod
+  def is_valide_payload(payload: dict):
+    if 'title' not in payload or 'release_date' not in payload:
+      return False
+    else:
+      return True

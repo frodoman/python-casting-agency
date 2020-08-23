@@ -3,12 +3,12 @@ from models import *
 from flask import Flask, render_template, request, abort, jsonify, session
 from helper import *
 
-# create a movie
+# Create a movie
 @app.route('/api/movie', methods=['POST'])
 def create_a_movie():
     payload = request.json
 
-    if 'title' not in payload or 'release_date' not in payload:
+    if not Movies.is_valide_payload(payload):
         abort(422)
     
     success = True
@@ -33,7 +33,7 @@ def create_a_movie():
             })
 
 
-# get a list of all movies
+# Get a list of all movies
 @app.route('/api/movies')
 def get_movies():
     movies = []
