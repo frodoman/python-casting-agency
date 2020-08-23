@@ -78,8 +78,9 @@ class Movies(db.Model):
   release_date = db.Column(db.DateTime)
   actors = db.relationship('Actors', secondary=movie_actor, backref=db.backref('movies', lazy=True))
 
-  def __init__(self, title):
+  def __init__(self, title, release_date):
     self.title = title
+    self.release_date = release_date
 
   def format(self):
     return {

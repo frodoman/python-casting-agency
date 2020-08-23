@@ -1,8 +1,9 @@
 import os
 from flask import Flask, render_template, request, abort, jsonify, session
-from models import db, set_up_db
+from models import *
 from flask_migrate import Migrate
 from flask_cors import CORS
+from helper import *
 
 def create_app(test_config=None):
 
@@ -47,25 +48,12 @@ def logout():
 def login_result():
     return render_template('login-result.html')
 
-    '''
-    token_name = 'access_token'
-    token_value = ''
+# Movies CRUD
+import route_movies
 
-    print("request: ", request.args)
+# Error Handling
+import route_errors
 
-    url_components = request.url.split(sep=token_name, maxsplit=2)
-    print("URL components:", url_components)
-
-    if len(url_components) > 1: 
-        token_subs = url_components[1].split('&')
-        if len(token_subs) > 0: 
-            token_value = token_subs[0]
-    
-    return jsonify({
-        "Login": "Success!",
-        "JWT" : token_value
-    })
-    '''
 
 if __name__ == '__main__':
     app.run()
