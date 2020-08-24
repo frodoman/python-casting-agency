@@ -61,7 +61,7 @@ def get_a_movie(movie_id):
     
     return jsonify({
         "success": True, 
-        "movies": found
+        "movie": found
     })
 
 
@@ -101,7 +101,7 @@ def update_a_movie(movie_id):
         db.session.close()
 
     return jsonify({
-            "success": success,
+            "update": success,
             "movie": payload,
             "movie_id": movie_id
             })
