@@ -81,10 +81,15 @@ class Movies(db.Model):
     self.release_date = release_date
 
   def format(self):
+    actor_ids = []
+    if len(self.actors) > 0:
+      actor_ids = [actor.id for actor in self.actors]
+
     return {
       'id': self.id,
       'title': self.title, 
-      'release_date':  dateTimeToString(self.release_date)}
+      'release_date':  dateTimeToString(self.release_date), 
+      'actors': actor_ids}
 
   @staticmethod
   def is_valide_payload(payload: dict):

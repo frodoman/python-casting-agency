@@ -38,7 +38,12 @@ def get_actors():
     raw_actors = Actors.query.all()
     if len(raw_actors) > 0:
         for actor in raw_actors:
-            actors.append(actor.format())
+            info = actor.format()
+            if len(actor.movies) > 0:
+                movies = [movie.id for movie in actor.movies]
+                info["movies"] = movies
+                
+            actors.append(info)
     
     return jsonify({
         "success": True, 

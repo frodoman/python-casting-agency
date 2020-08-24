@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, abort, jsonify, session
 from helper import *
 
 # Create a movie
-@app.route('/api/movie', methods=['POST'])
+@app.route('/api/movies/create', methods=['POST'])
 def create_a_movie():
     payload = request.json
 
@@ -49,3 +49,59 @@ def get_movies():
         "movies": movies
     })
 
+
+# Get a movie by id
+@app.route('/api/movies/<int:movie_id>')
+def get_a_movie(movie_id):
+    found = {}
+    movie = Movies.query.get(movie_id)
+
+    if movie is not None:
+        found = movie.format()
+    
+    return jsonify({
+        "success": True, 
+        "movies": found
+    })
+
+
+# Update a movie
+@app.route('/api/movies/<int:movie_id>', methods=['PATCH'])
+def update_a_movie(movie_id):
+    payload = request.json
+
+    if not Movies.is_valide_payload(payload):
+        abort(422)
+    
+    success = True
+    try:
+        target_movie = Movies.query.get(movie_id)
+        if target_movie is None:
+            abort(404)
+
+        date = format_datetime(payload['release_date'])
+        target_movie.release_date = date 
+
+        target_movie.title = payload['title']
+
+        # link actors
+        if 'actors' in payload:
+            actor_ids = payload['actors']
+
+            for actor_id in actor_ids:
+                actor = Actors.query.get(actor_id)
+                if actor is not None:
+                    target_movie.actors.append(actor)
+
+        db.session.commit()
+    except():
+        abort(500)
+        success = False
+    finally:
+        db.session.close()
+
+    return jsonify({
+            "success": success,
+            "movie": payload,
+            "movie_id": movie_id
+            })
