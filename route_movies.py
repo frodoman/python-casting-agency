@@ -105,3 +105,32 @@ def update_a_movie(movie_id):
             "movie": payload,
             "movie_id": movie_id
             })
+
+
+# Delete a movie
+@app.route('/api/movies/<int:movie_id>', methods=['DELETE'])
+def delete_a_movie(movie_id):
+    movie = Movies.query.get(movie_id)
+
+    if movie is None:
+        abort(404)
+    
+    success = True
+    try:
+        actors = movie.actors
+        if len(actors) > 0:
+            for actor in actors:
+                movie.actors.remove(actor)
+        
+        db.session.delete(movie)
+        db.session.commit()
+    except():
+        abort(500)
+        success = False
+    finally:
+        db.session.close()
+
+    return jsonify({
+            "delete": success,
+            "movie_id": movie_id
+            })
