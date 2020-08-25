@@ -3,6 +3,7 @@ from models import *
 from flask import Flask, render_template, request, abort, jsonify, session
 from helper import *
 
+
 # Create an actor
 @app.route('/api/actor', methods=['POST'])
 def create_an_actor():

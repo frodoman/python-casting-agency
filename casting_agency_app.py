@@ -6,7 +6,6 @@ from flask_cors import CORS
 from helper import *
 from consts import *
 
-
 def create_app(test_config=None):
 
     app = Flask(__name__)
@@ -22,8 +21,10 @@ def create_app(test_config=None):
 
     return app
 
+
 app = create_app()
 migrate = Migrate(app, db)
+
 
 @app.route('/')
 def get_home():
@@ -37,23 +38,9 @@ def get_home():
         "Database": app.config['SQLALCHEMY_DATABASE_URI']
     })
 
-@app.route('/api/login')
-def login():
 
-    call_back = AUTH_CALL_BACK_DEV
-    if KEY_AUTH_CALL_BACK in os.environ:
-        call_back = os.environ[KEY_AUTH_CALL_BACK]
-
-    return render_template('login.html', call_back_url=call_back)
-
-@app.route('/api/logout')
-def logout():
-    session.clear()
-    return render_template('login.html')
-
-@app.route('/api/login-result', methods=['GET'])
-def login_result():
-    return render_template('login-result.html')
+# Login / Logout
+import route_auth
 
 
 # Movies CRUD
