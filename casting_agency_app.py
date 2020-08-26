@@ -12,18 +12,19 @@ def create_app(test_config=None):
     set_up_db(app)
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-    @app.after_request 
-    def after_request(response):
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
-
     return app
 
 
 app = create_app()
 migrate = Migrate(app, db)
+
+
+@app.after_request 
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 @app.route('/')
@@ -39,21 +40,7 @@ def get_home():
     })
 
 
-# Login / Logout
-import route_auth
-
-
-# Movies CRUD
-import route_movies
-
-
-# Actors CRUD
-import route_actors
-
-
-# Error Handling
-import route_errors
-
+from routes import *
 
 if __name__ == '__main__':
     app.run()
