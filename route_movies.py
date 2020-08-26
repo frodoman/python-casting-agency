@@ -2,6 +2,7 @@ from casting_agency_app import app
 from models import * 
 from flask import Flask, render_template, request, abort, jsonify, session
 from helper import *
+from auth import *
 
 # Create a movie
 @app.route('/api/movies/create', methods=['POST'])
