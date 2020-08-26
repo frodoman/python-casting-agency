@@ -40,7 +40,10 @@ def get_home():
     })
 
 
-from routes import *
+import route_errors
+import route_auth
+import route_movies
+import route_actors
 
 if __name__ == '__main__':
     app.run()
