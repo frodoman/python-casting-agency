@@ -6,6 +6,7 @@ from auth import *
 
 # Create an actor
 @app.route('/api/actor', methods=['POST'])
+@requires_auth(Permission.POST_ACTORS)
 def create_an_actor():
     payload = request.json
 
@@ -33,7 +34,7 @@ def create_an_actor():
 
 
 # Get a list of all actors
-@app.route('/api/actors')
+@app.route('/api/actors', methods=['GET'])
 def get_actors():
     actors = []
 
@@ -54,7 +55,8 @@ def get_actors():
 
 
 # Get an actor by id
-@app.route('/api/actors/<int:actor_id>')
+@app.route('/api/actors/<int:actor_id>', methods=['GET'])
+@requires_auth(Permission.READ_ACTORS)
 def get_an_actor(actor_id):
     found = {}
     actor = Actors.query.get(actor_id)
@@ -70,6 +72,7 @@ def get_an_actor(actor_id):
 
 # Update an actor
 @app.route('/api/actors/<int:actor_id>', methods=['PATCH'])
+@requires_auth(Permission.PATCH_ACTORS)
 def update_an_actor(actor_id):
     payload = request.json
 
@@ -111,6 +114,7 @@ def update_an_actor(actor_id):
 
 # Delete an actor
 @app.route('/api/actors/<int:actor_id>', methods=['DELETE'])
+@requires_auth(Permission.DELETE_ACTORS)
 def delete_an_actor(actor_id):
     actor = Actors.query.get(actor_id)
 

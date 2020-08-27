@@ -6,6 +6,7 @@ from auth import *
 
 # Create a movie
 @app.route('/api/movies/create', methods=['POST'])
+@requires_auth(Permission.POST_MOVIES)
 def create_a_movie():
     payload = request.json
 
@@ -35,7 +36,7 @@ def create_a_movie():
 
 
 # Get a list of all movies
-@app.route('/api/movies')
+@app.route('/api/movies', methods=['GET'])
 def get_movies():
     movies = []
 
@@ -52,7 +53,8 @@ def get_movies():
 
 
 # Get a movie by id
-@app.route('/api/movies/<int:movie_id>')
+@app.route('/api/movies/<int:movie_id>', methods=['GET'])
+@requires_auth(Permission.READ_MOVIES)
 def get_a_movie(movie_id):
     found = {}
     movie = Movies.query.get(movie_id)
@@ -68,6 +70,7 @@ def get_a_movie(movie_id):
 
 # Update a movie
 @app.route('/api/movies/<int:movie_id>', methods=['PATCH'])
+@requires_auth(Permission.PATCH_MOVIES)
 def update_a_movie(movie_id):
     payload = request.json
 
@@ -110,6 +113,7 @@ def update_a_movie(movie_id):
 
 # Delete a movie
 @app.route('/api/movies/<int:movie_id>', methods=['DELETE'])
+@requires_auth(Permission.DELETE_MOVIES)
 def delete_a_movie(movie_id):
     movie = Movies.query.get(movie_id)
 
