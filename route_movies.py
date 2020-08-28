@@ -35,6 +35,27 @@ def create_a_movie():
             })
 
 
+# Search actor by name
+@app.route('/api/movies/search', methods=['POST'])
+def search_movies():
+    params = request.json
+    if not 'title' in params:
+        abort(422)
+
+    search_phase = "%" + params['title'] + "%"
+
+    movies = []
+    found = Movies.query.filter(Movies.title.ilike(search_phase)).order_by(Movies.title).all()
+    if len(found) > 0: 
+        for movie in found:
+            movies.append(movie.format())
+    
+    return jsonify({
+        "success": True, 
+        "movies": movies
+    })
+
+
 # Get a list of all movies
 @app.route('/api/movies', methods=['GET'])
 def get_movies():

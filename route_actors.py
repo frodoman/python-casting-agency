@@ -70,6 +70,30 @@ def get_an_actor(actor_id):
     })
 
 
+# Search actor by name
+@app.route('/api/actors/search', methods=['POST'])
+def search_actors():
+    print("Search ...")
+    params = request.json
+    if not 'name' in params:
+        abort(422)
+
+    search_phase = "%" + params['name'] + "%"
+    print("Search : ", search_phase)
+
+    actors = []
+    found = Actors.query.filter(Actors.name.ilike(search_phase)).order_by(Actors.name).all()
+    if len(found) > 0: 
+        for actor in found:
+            actors.append(actor.format())
+    
+    return jsonify({
+        "success": True, 
+        "actors": actors
+    })
+
+
+
 # Update an actor
 @app.route('/api/actors/<int:actor_id>', methods=['PATCH'])
 @requires_auth(Permission.PATCH_ACTORS)
