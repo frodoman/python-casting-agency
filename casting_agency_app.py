@@ -5,12 +5,15 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from helper import *
 from consts import *
+from route_makers import *
 
 def create_app(test_config=None):
 
     app = Flask(__name__)
     set_up_db(app)
     CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+    add_movie_routes(app)
 
     return app
 

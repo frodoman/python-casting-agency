@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, abort, jsonify, session
 from helper import *
 from auth import *
 
+
 # Create a movie
 @app.route('/api/movies/create', methods=['POST'])
 @requires_auth(Permission.POST_MOVIES)
@@ -55,7 +56,7 @@ def search_movies():
         "movies": movies
     })
 
-
+'''
 # Get a list of all movies
 @app.route('/api/movies', methods=['GET'])
 def get_movies():
@@ -71,6 +72,7 @@ def get_movies():
         "success": True, 
         "movies": movies
     })
+'''
 
 
 # Get a movie by id

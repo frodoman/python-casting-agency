@@ -11,13 +11,17 @@ local_db_path = "postgres://{}/{}".format('XinghouLiu@localhost:5432', database_
 db = SQLAlchemy()
 
 
-def set_up_db(app):
+def set_up_db(app, db_path=None):
     app.config.from_object('config')
+    db_path_key = 'SQLALCHEMY_DATABASE_URI'
     if app.debug: 
-      app.config['SQLALCHEMY_DATABASE_URI'] = local_db_path
+      app.config[db_path_key] = local_db_path
 
     if KEY_DB_URL in os.environ:
-      app.config['SQLALCHEMY_DATABASE_URI'] = os.environ[KEY_DB_URL]
+      app.config[db_path_key] = os.environ[KEY_DB_URL]
+
+    if db_path is not None: 
+      app.config[db_path_key] = db_path
 
     db.app = app
     db.init_app(app)
