@@ -7,11 +7,19 @@ from models import *
 from sqlalchemy import Table, Column, create_engine, Float, Integer, String, MetaData, ForeignKey
 from flask_sqlalchemy import SQLAlchemy
 
-JWT_TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkE4UUw4Qy00Y0RoWG5iTlhIS3lJSiJ9.eyJpc3MiOiJodHRwczovL2NvZmZlZS14LmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw1ZjNmZjI0MDE3MDRhZjAwNmRlNzAwY2QiLCJhdWQiOiJjYXN0aW5nLWFnZW5jeSIsImlhdCI6MTU5ODcxMjc4NCwiZXhwIjoxNTk4Nzk5MTg0LCJhenAiOiJycldqWjViM0VnSlBSV3VZaUVJTEo2azFnZVJuc01iaSIsInNjb3BlIjoiIiwicGVybWlzc2lvbnMiOlsiZGVsZXRlOmFjdG9ycyIsImRlbGV0ZTptb3ZpZXMiLCJwYXRjaDphY3RvcnMiLCJwYXRjaDptb3ZpZXMiLCJwb3N0OmFjdG9ycyIsInBvc3Q6bW92aWVzIiwicmVhZDphY3RvcnMiLCJyZWFkOm1vdmllcyJdfQ.VCj3fQqOQU6HeLDiEWy3MyUQWzGws9Q3xrb_LnlDEQZ3q07V73TSfhXR21sGp_5ceJwYDz40zrGf1yi4NPBWAoprxzWM04G2xNU67gDpA0_gbmHSPeHLYLhAS-t5iUMbVYfB-xqtGKBp13yp28WrpClCavhdm3DtAJlczOAzqcq8-PzOEb55wXmlMgJEPQE8iCMvNfEdcnNeQ6oL1QxTkI0d5-hxoRKGUfbj6V6gOkZRxQBMaurFrf0tjVruJjovMktFyQxDSDsdIo_vht02bfHBlJo96NFotIge5AO3r96GS-4N2NiUTZ4QDuXPGqqNTpjh7MYbKgA_yR_i7mDO6w'
+# Put a new JWT token here if expired
+
+# JWT token for Executive Producer
+JWT_TOKEN_ADMIN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkE4UUw4Qy00Y0RoWG5iTlhIS3lJSiJ9.eyJpc3MiOiJodHRwczovL2NvZmZlZS14LmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw1ZjNmZjI0MDE3MDRhZjAwNmRlNzAwY2QiLCJhdWQiOiJjYXN0aW5nLWFnZW5jeSIsImlhdCI6MTU5ODcxMjc4NCwiZXhwIjoxNTk4Nzk5MTg0LCJhenAiOiJycldqWjViM0VnSlBSV3VZaUVJTEo2azFnZVJuc01iaSIsInNjb3BlIjoiIiwicGVybWlzc2lvbnMiOlsiZGVsZXRlOmFjdG9ycyIsImRlbGV0ZTptb3ZpZXMiLCJwYXRjaDphY3RvcnMiLCJwYXRjaDptb3ZpZXMiLCJwb3N0OmFjdG9ycyIsInBvc3Q6bW92aWVzIiwicmVhZDphY3RvcnMiLCJyZWFkOm1vdmllcyJdfQ.VCj3fQqOQU6HeLDiEWy3MyUQWzGws9Q3xrb_LnlDEQZ3q07V73TSfhXR21sGp_5ceJwYDz40zrGf1yi4NPBWAoprxzWM04G2xNU67gDpA0_gbmHSPeHLYLhAS-t5iUMbVYfB-xqtGKBp13yp28WrpClCavhdm3DtAJlczOAzqcq8-PzOEb55wXmlMgJEPQE8iCMvNfEdcnNeQ6oL1QxTkI0d5-hxoRKGUfbj6V6gOkZRxQBMaurFrf0tjVruJjovMktFyQxDSDsdIo_vht02bfHBlJo96NFotIge5AO3r96GS-4N2NiUTZ4QDuXPGqqNTpjh7MYbKgA_yR_i7mDO6w'
+
+# JWT token for Casting Director
+JWT_TOKEN_MANAGER = ''
+
+# JWT token for Casting Assistant
+JWT_TOKEN_USER = ''
 
 class CastingAgencyTest(unittest.TestCase):
-    
-    
+        
     def setUp(self):
         """Define test variables and initialize app."""
         self.app = create_app()
@@ -32,7 +40,10 @@ class CastingAgencyTest(unittest.TestCase):
             'age': 22
         }
 
-        self.request_header = {'Authorization': 'Bearer ' + JWT_TOKEN}
+        self.admin_header = self.make_header(JWT_TOKEN_ADMIN)
+        self.manager_header = self.make_header(JWT_TOKEN_MANAGER)
+        self.user_header = self.make_header(JWT_TOKEN_USER)
+
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
@@ -46,6 +57,11 @@ class CastingAgencyTest(unittest.TestCase):
         pass
 
 
+    def make_header(self, token):
+        return {
+            'Authorization': 'Bearer ' + token
+        }
+
     # Movies: test get all
     def test_get_all_movies(self):
         res = self.client().get('/api/movies')
@@ -56,7 +72,7 @@ class CastingAgencyTest(unittest.TestCase):
 
     # Movies: test create/add
     def test_create_one_movie_ok(self):
-        res = self.client().post('/api/movies/create', json = self.mock_movie, headers=self.request_header)
+        res = self.client().post('/api/movies/create', json = self.mock_movie, headers=self.admin_header)
         self.assertEqual(res.status_code, 200)
 
 
@@ -69,7 +85,7 @@ class CastingAgencyTest(unittest.TestCase):
     # Movies: test search
     def test_search_movies_ok(self):
         param = {"title":"Movie"}
-        res = self.client().post('/api/movies/search', json=param, headers=self.request_header)
+        res = self.client().post('/api/movies/search', json=param, headers=self.admin_header)
         self.assertEqual(res.status_code, 200)
 
         data = json.loads(res.data)
