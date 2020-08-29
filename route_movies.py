@@ -77,13 +77,15 @@ def add_movie_routes(app:Flask):
     # Get a movie by id
     @app.route('/api/movies/<int:movie_id>', methods=['GET'])
     @requires_auth(Permission.READ_MOVIES)
-    def get_a_movie(movie_id):
+    def get_a_movie(jwt, movie_id):
         found = {}
         movie = Movies.query.get(movie_id)
 
         if movie is not None:
             found = movie.format()
-        
+        else: 
+            abort(404)
+            
         return jsonify({
             "success": True, 
             "movie": found

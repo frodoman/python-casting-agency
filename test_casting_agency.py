@@ -139,19 +139,15 @@ class CastingAgencyTest(unittest.TestCase):
     def test_update_movie_ok(self):
         self.add_mock_movie_if_not_exist()
         movie = self.get_mock_movie_from_db()
-
-        if movie is None:
-            pass
         
-        print("Found mock movie: ", movie)
         movie['title'] = "Mock movie title - Updated!"
         movie_id = movie['id']
 
-        # admin - ok
+        # Role: admin - ok
         res = self.client().patch('/api/movies/{}'.format(movie_id), json=movie, headers=self.admin_header)
         self.assertEquals(res.status_code, 200)
 
-        # manager - ok
+        # Role: manager - ok
         res = self.client().patch('/api/movies/{}'.format(movie_id), json=movie, headers=self.manager_header)
         self.assertEquals(res.status_code, 200)
 
@@ -162,22 +158,19 @@ class CastingAgencyTest(unittest.TestCase):
     def test_update_movie_failed(self):
         self.add_mock_movie_if_not_exist()
         movie = self.get_mock_movie_from_db()
-
-        if movie is None:
-            pass
         
         movie['title'] = "Mock movie title - Updated!"
         movie_id = movie['id']
-
         url = '/api/movies/{}'.format(movie_id)
 
         # Missing json data
         res = self.client().patch(url, json=None, headers = self.admin_header)
         self.assertEquals(res.status_code, 422)
 
-        # user - not allowed
+        # Role: user - not allowed
         res = self.client().patch(url, json=movie_id, headers = self.user_header)
         self.assertEquals(res.status_code, 403)
+
 
     # Movies: search
     def test_search_movies_ok(self, json_param=None):
@@ -196,6 +189,41 @@ class CastingAgencyTest(unittest.TestCase):
         param = {}
         res = self.client().post('/api/movies/search', json=param)
         self.assertNotEqual(res.status_code, 200)
+
+
+    # Movies: Delete - ok
+    def test_delete_movie_ok(self):
+        self.add_mock_movie_if_not_exist()
+        movie = self.get_mock_movie_from_db()
+
+        movie_id = movie['id']
+        url = '/api/movies/{}'.format(movie_id)
+
+        # Role: Admin - ok
+        res = self.client().delete(url, headers = self.admin_header)
+        self.assertEquals(res.status_code, 200)
+
+        # Should not found it by id
+        res = self.client().get(url, headers = self.admin_header)
+        self.assertEquals(res.status_code, 404)
+    
+
+    # Movies: Delete - failed
+    def test_delete_movie_failed(self):
+        self.add_mock_movie_if_not_exist()
+        movie = self.get_mock_movie_from_db()
+
+        movie_id = movie['id']
+        url = '/api/movies/{}'.format(movie_id)
+
+        # Role: manager - not allowed
+        res = self.client().delete(url, headers = self.manager_header)
+        self.assertEquals(res.status_code, 403)
+
+        # Role: user - failed
+        res = self.client().delete(url, headers = self.user_header)
+        self.assertEquals(res.status_code, 403)
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
