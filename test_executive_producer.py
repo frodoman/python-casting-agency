@@ -7,7 +7,7 @@ from models import *
 from sqlalchemy import Table, Column, create_engine, Float, Integer, String, MetaData, ForeignKey
 from flask_sqlalchemy import SQLAlchemy
 
-JWT_TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkE4UUw4Qy00Y0RoWG5iTlhIS3lJSiJ9.eyJpc3MiOiJodHRwczovL2NvZmZlZS14LmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw1ZjNmZjI0MDE3MDRhZjAwNmRlNzAwY2QiLCJhdWQiOiJjYXN0aW5nLWFnZW5jeSIsImlhdCI6MTU5ODY5NzI0MiwiZXhwIjoxNTk4NzA0NDQyLCJhenAiOiJycldqWjViM0VnSlBSV3VZaUVJTEo2azFnZVJuc01iaSIsInNjb3BlIjoiIiwicGVybWlzc2lvbnMiOlsiZGVsZXRlOmFjdG9ycyIsImRlbGV0ZTptb3ZpZXMiLCJwYXRjaDphY3RvcnMiLCJwYXRjaDptb3ZpZXMiLCJwb3N0OmFjdG9ycyIsInBvc3Q6bW92aWVzIiwicmVhZDphY3RvcnMiLCJyZWFkOm1vdmllcyJdfQ.qoQys7kDcnBcx488VmM-Oc_nqu2AFrq-LYyKejhlwrtdKdNx8lG0lgP9Em2DiM_hMKOWuAZXx02R1wuMVeHNInOHBP2mbYk95CGp17Ok62guXcyw5dH-S36mAUnJM2i5KeXRhrx1pTnW_vFwo06EMM1G3s6QADyVlXYK5Cf6zgY3aWHQ6-wbcv-kwQ1um4BL2uRWA7_fW3YkJo8xHzHwMH5HHV-Uc4NIrIeEPv62J1lTsqqbzwP59MMU0NxZh9Dny6F49w8JqX3I8hL-LKTFdyrf_5ChYbYRIVmLlhYVzGFb-HEMO9S0D66anGLDaR9TfOpPlv6KgVGlH9ACI7hW2A'
+JWT_TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkE4UUw4Qy00Y0RoWG5iTlhIS3lJSiJ9.eyJpc3MiOiJodHRwczovL2NvZmZlZS14LmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw1ZjNmZjI0MDE3MDRhZjAwNmRlNzAwY2QiLCJhdWQiOiJjYXN0aW5nLWFnZW5jeSIsImlhdCI6MTU5ODcxMTM4NiwiZXhwIjoxNTk4NzE4NTg2LCJhenAiOiJycldqWjViM0VnSlBSV3VZaUVJTEo2azFnZVJuc01iaSIsInNjb3BlIjoiIiwicGVybWlzc2lvbnMiOlsiZGVsZXRlOmFjdG9ycyIsImRlbGV0ZTptb3ZpZXMiLCJwYXRjaDphY3RvcnMiLCJwYXRjaDptb3ZpZXMiLCJwb3N0OmFjdG9ycyIsInBvc3Q6bW92aWVzIiwicmVhZDphY3RvcnMiLCJyZWFkOm1vdmllcyJdfQ.VAyuvvvB_2J4UjgBxmGnIj3V8HS5UnUZoYxpDIJJPqgBoaJKVHY6g1XTqGrj5iW-O9irHgzNG8cQG243hdd9Qppv127FAhCjzV7YrZkbUwekWhO14uZO28slR6HEIJt4_9Tof3WYob0Zbb29PfwneSCkvf0ytS7XN5-D2XPaJPmKsTH4zmSPozWblwx4n4P5i7ZfGADkgGOypP4zqqr2qCuvarAIIAke8EXI-fxV4ucbSOBjUvGR69wr_SAkOq0m0og47DXScS36gXhItMJhJvwK5hMDR6MoXhQh9m9Z7RfS_C-4zHnA9EFZjWdO5uGJf_DfJ_qU3lbaosDOX4NK4Q'
 
 class CastingAgencyTest(unittest.TestCase):
     
@@ -32,6 +32,7 @@ class CastingAgencyTest(unittest.TestCase):
             'age': 22
         }
 
+        self.request_header = {'Authorization': 'Bearer ' + JWT_TOKEN}
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
@@ -53,15 +54,31 @@ class CastingAgencyTest(unittest.TestCase):
         data = json.loads(res.data)
         self.assertTrue(len(data['movies'])>0)
 
-    '''
-    def test_create_one_movie(self):
+    # Movies: test create/add
+    def test_create_one_movie_ok(self):
+        res = self.client().post('/api/movies/create', json = self.mock_movie, headers=self.request_header)
+        self.assertEqual(res.status_code, 200)
+
+
+    def test_create_one_movie_failed(self):
+        res = self.client().post('/api/movies/create', json = self.mock_movie)
+        self.assertNotEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 401)
 
 
     # Movies: test search
-    def test_search_movies(self):
-        res = self.client().post('/api/movies/search')
-    '''
+    def test_search_movies_ok(self):
+        param = {"title":"Movie"}
+        res = self.client().post('/api/movies/search', json=param, headers=self.request_header)
+        self.assertEqual(res.status_code, 200)
 
+        data = json.loads(res.data)
+        self.assertTrue(len(data['movies'])>0)
+
+    def test_search_movies_failed(self):
+        param = {}
+        res = self.client().post('/api/movies/search', json=param)
+        self.assertNotEqual(res.status_code, 200)
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

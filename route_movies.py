@@ -9,7 +9,7 @@ def add_movie_routes(app:Flask):
     # Create a movie
     @app.route('/api/movies/create', methods=['POST'])
     @requires_auth(Permission.POST_MOVIES)
-    def create_a_movie():
+    def create_a_movie(jwt):
         payload = request.json
 
         if not Movies.is_valide_payload(payload):
@@ -18,10 +18,8 @@ def add_movie_routes(app:Flask):
         success = True
         try:
             date = format_datetime(payload['release_date'])
-            print("Release date: ", date)
-
             movie = Movies(title=payload['title'], 
-                        release_date=date)
+                           release_date=date)
             
             db.session.add(movie)
             db.session.commit()
