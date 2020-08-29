@@ -62,8 +62,45 @@ class CastingAgencyTest(unittest.TestCase):
             'Authorization': 'Bearer ' + token
         }
 
+    # Movies: helper functions
+    def get_mock_movie_from_db(self): 
+        url = '/api/movies/search' 
+        param = {'title': 'Movie Title Mock'}
 
-    # Movies: test get all
+        res = self.client().post(url, json=param)
+        movies = json.loads(res.data)["movies"]
+
+        if len(movies) > 0: 
+            return movies[0]
+        else:
+            return None
+
+
+    def delete_mock_movie_in_db(self):
+        movie = self.get_mock_movie_from_db()
+
+        if movie is not None:
+            movie_id = movie['id']
+            print("Mock movie id: {}".format(movie_id))
+            res = self.client().delete('/api/movies/{}'.format(movie_id), headers=self.admin_header)
+            return res
+        else:
+            return None
+
+
+    def add_mock_movie_to_db(self):
+        res = self.client().post('/api/movies/create', json = self.mock_movie, headers=self.admin_header)
+        return res
+
+
+    def add_mock_movie_if_not_exist(self):
+        movie = self.get_mock_movie_from_db()
+
+        if movie is None:
+            self.add_mock_movie_to_db()
+
+
+    # Movies: get all
     def test_get_all_movies(self):
         res = self.client().get('/api/movies')
         self.assertEqual(res.status_code, 200)
@@ -72,13 +109,15 @@ class CastingAgencyTest(unittest.TestCase):
         self.assertTrue(len(data['movies'])>0)
 
 
-    # Movies: test create/add - admin
+    # Movies: create/add - ok
     def test_create_one_movie_ok(self):
-        res = self.client().post('/api/movies/create', json = self.mock_movie, headers=self.admin_header)
+        self.delete_mock_movie_in_db()
+
+        res = self.add_mock_movie_to_db()
         self.assertEqual(res.status_code, 200)
 
 
-    # Movies: test create/add - manager & user
+    # Movies: create/add - faliure
     def test_create_one_movie_failed(self):
         url = '/api/movies/create'
 
@@ -88,22 +127,70 @@ class CastingAgencyTest(unittest.TestCase):
         self.assertEqual(res.status_code, 401)
 
         # not allowed for manager 
-        #res = self.client().post(url, json=self.mock_movie, headers=self.manager_header)
-        #self.assertEquals(res.status_code, 403)
+        res = self.client().post(url, json=self.mock_movie, headers=self.manager_header)
+        self.assertEquals(res.status_code, 403)
 
         # not allowed for user
         res = self.client().post(url, json=self.mock_movie, headers=self.user_header)
         self.assertEquals(res.status_code, 403)
 
 
-    # Movies: test search
-    def test_search_movies_ok(self):
+    # Movies: Updates - ok
+    def test_update_movie_ok(self):
+        self.add_mock_movie_if_not_exist()
+        movie = self.get_mock_movie_from_db()
+
+        if movie is None:
+            pass
+        
+        print("Found mock movie: ", movie)
+        movie['title'] = "Mock movie title - Updated!"
+        movie_id = movie['id']
+
+        # admin - ok
+        res = self.client().patch('/api/movies/{}'.format(movie_id), json=movie, headers=self.admin_header)
+        self.assertEquals(res.status_code, 200)
+
+        # manager - ok
+        res = self.client().patch('/api/movies/{}'.format(movie_id), json=movie, headers=self.manager_header)
+        self.assertEquals(res.status_code, 200)
+
+        self.test_search_movies_ok(json_param = {"title":"title - Updated"})
+
+
+    # Movies: Updates - failed
+    def test_update_movie_failed(self):
+        self.add_mock_movie_if_not_exist()
+        movie = self.get_mock_movie_from_db()
+
+        if movie is None:
+            pass
+        
+        movie['title'] = "Mock movie title - Updated!"
+        movie_id = movie['id']
+
+        url = '/api/movies/{}'.format(movie_id)
+
+        # Missing json data
+        res = self.client().patch(url, json=None, headers = self.admin_header)
+        self.assertEquals(res.status_code, 422)
+
+        # user - not allowed
+        res = self.client().patch(url, json=movie_id, headers = self.user_header)
+        self.assertEquals(res.status_code, 403)
+
+    # Movies: search
+    def test_search_movies_ok(self, json_param=None):
         param = {"title":"Movie"}
+        if json_param is not None:
+            param = json_param
+
         res = self.client().post('/api/movies/search', json=param, headers=self.admin_header)
         self.assertEqual(res.status_code, 200)
 
         data = json.loads(res.data)
         self.assertTrue(len(data['movies'])>0)
+
 
     def test_search_movies_failed(self):
         param = {}

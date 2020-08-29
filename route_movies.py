@@ -93,7 +93,7 @@ def add_movie_routes(app:Flask):
     # Update a movie
     @app.route('/api/movies/<int:movie_id>', methods=['PATCH'])
     @requires_auth(Permission.PATCH_MOVIES)
-    def update_a_movie(movie_id):
+    def update_a_movie(jwt, movie_id):
         payload = request.json
 
         if not Movies.is_valide_payload(payload):
@@ -136,7 +136,7 @@ def add_movie_routes(app:Flask):
     # Delete a movie
     @app.route('/api/movies/<int:movie_id>', methods=['DELETE'])
     @requires_auth(Permission.DELETE_MOVIES)
-    def delete_a_movie(movie_id):
+    def delete_a_movie(jwt, movie_id):
         movie = Movies.query.get(movie_id)
 
         if movie is None:

@@ -29,5 +29,5 @@ def format_datetime(date_str):
 
 
 def dateTimeToString(dateTime):
-    format="%a %-d %b %Y 'at' %H:%M"
+    format="%Y-%m-%d"
     return dateTime.strftime(format)

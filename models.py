@@ -97,7 +97,9 @@ class Movies(db.Model):
 
   @staticmethod
   def is_valide_payload(payload: dict):
-    if 'title' not in payload or 'release_date' not in payload:
+    if payload is None: 
+      return False
+    elif 'title' not in payload or 'release_date' not in payload:
       return False
     else:
       return True
