@@ -5,7 +5,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from helper import *
 from consts import *
-from route_makers import *
+from route_movies import add_movie_routes
 
 def create_app(test_config=None):
 
@@ -45,7 +45,6 @@ def get_home():
 
 import route_errors
 import route_auth
-import route_movies
 import route_actors
 
 if __name__ == '__main__':
