@@ -6,6 +6,7 @@ from flask_cors import CORS
 from helper import *
 from consts import *
 from route_movies import add_movie_routes
+from route_errors import add_error_routes
 
 def create_app(test_config=None):
 
@@ -13,7 +14,9 @@ def create_app(test_config=None):
     set_up_db(app)
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-    add_movie_routes(app)
+    add_error_routes(app=app)
+    add_movie_routes(app=app)
+    
 
     return app
 
@@ -43,7 +46,6 @@ def get_home():
     })
 
 
-import route_errors
 import route_auth
 import route_actors
 

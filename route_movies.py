@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, abort, jsonify, session
 from helper import *
 from auth import *
 
-# Link all the endpoint related to Movies to the main app
+# Add Movies endpoints to the main app
 def add_movie_routes(app:Flask):
 
     # Create a movie
