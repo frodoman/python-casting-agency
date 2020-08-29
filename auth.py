@@ -91,6 +91,8 @@ def check_permissions(permission, payload):
                 }, 400)
 
     if permission not in payload['permissions']:
+        print("Permission (" + permission + ") not found!")
+
         raise AuthError({
             'code': 'unauthorized',
             'description': 'Permission not found.'
@@ -199,8 +201,8 @@ def requires_auth(permission=''):
                 token = get_token_auth_header()
                 payload = verify_decode_jwt(token)
                 check_permissions(permission, payload)
-            except:
-                abort(401)
+            except AuthError as error:
+                abort(error.status_code)
 
             return f(payload, *args, **kwargs)
 
