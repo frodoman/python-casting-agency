@@ -7,6 +7,7 @@ from helper import *
 from consts import *
 from route_movies import add_movie_routes
 from route_errors import add_error_routes
+from route_auth import add_login_routes
 
 def create_app(test_config=None):
 
@@ -15,8 +16,9 @@ def create_app(test_config=None):
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     add_error_routes(app=app)
+    add_login_routes(app=app)
     add_movie_routes(app=app)
-    
+
 
     return app
 
@@ -46,7 +48,6 @@ def get_home():
     })
 
 
-import route_auth
 import route_actors
 
 if __name__ == '__main__':
