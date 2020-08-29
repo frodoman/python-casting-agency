@@ -37,7 +37,7 @@ def add_movie_routes(app:Flask):
                 })
 
 
-    # Search actor by name
+    # Search movies by name
     @app.route('/api/movies/search', methods=['POST'])
     def search_movies():
         params = request.json
