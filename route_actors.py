@@ -60,7 +60,7 @@ def add_actor_routes(app:Flask):
     # Get an actor by id
     @app.route('/api/actors/<int:actor_id>', methods=['GET'])
     @requires_auth(Permission.READ_ACTORS)
-    def get_an_actor(actor_id):
+    def get_an_actor(jwt, actor_id):
         found = {}
         actor = Actors.query.get(actor_id)
 
@@ -100,7 +100,7 @@ def add_actor_routes(app:Flask):
     # Update an actor
     @app.route('/api/actors/<int:actor_id>', methods=['PATCH'])
     @requires_auth(Permission.PATCH_ACTORS)
-    def update_an_actor(actor_id):
+    def update_an_actor(jwt, actor_id):
         payload = request.json
 
         if not Actors.is_valide_payload(payload):
@@ -142,7 +142,7 @@ def add_actor_routes(app:Flask):
     # Delete an actor
     @app.route('/api/actors/<int:actor_id>', methods=['DELETE'])
     @requires_auth(Permission.DELETE_ACTORS)
-    def delete_an_actor(actor_id):
+    def delete_an_actor(jwt, actor_id):
         actor = Actors.query.get(actor_id)
 
         if actor is None:

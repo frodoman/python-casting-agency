@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from test_commons import *
 
 
-class MovieTest(BaseTest):
+class ActorTest(BaseTest):
         
     def setUp(self):
         """Define test variables and initialize app."""
@@ -131,6 +131,43 @@ class MovieTest(BaseTest):
         res = self.client().post('/api/actors/search', json=param)
         self.assertNotEqual(res.status_code, 200)
 
+
+    # Actors: Update - ok
+    def test_update_actor_ok(self):
+        self.add_mock_actor_if_not_exist()
+        actor = self.get_mock_actor_from_db()
+        
+        actor['name'] = "Mock actor name - Updated!"
+        actor_id = actor['id']
+        url = '/api/actors/{}'.format(actor_id)
+        
+        # Role: admin - ok
+        res = self.client().patch(url, json=actor, headers=self.admin_header)
+        self.assertEquals(res.status_code, 200)
+
+        # Role: manager - ok
+        res = self.client().patch(url, json=actor, headers=self.manager_header)
+        self.assertEquals(res.status_code, 200)
+
+        self.test_search_actors_ok(json_param = {"name":"name - Updated"})
+
+
+    # Actors: Update - failed
+    def test_update_actor_failed(self):
+        self.add_mock_actor_if_not_exist()
+        actor = self.get_mock_actor_from_db()
+        
+        actor['name'] = "Mock actor name - Updated!"
+        actor_id = actor['id']
+        url = '/api/actors/{}'.format(actor_id)
+
+        # Missing json data
+        res = self.client().patch(url, json=None, headers = self.admin_header)
+        self.assertEquals(res.status_code, 422)
+
+        # Role: user - not allowed
+        res = self.client().patch(url, json=actor, headers = self.user_header)
+        self.assertEquals(res.status_code, 403)
 
 
 

@@ -50,7 +50,9 @@ class Actors(db.Model):
 
   @staticmethod
   def is_valide_payload(payload: dict):
-    if 'name' not in payload or 'age' not in payload or 'gender' not in payload:
+    if payload is None:
+      return False
+    elif 'name' not in payload or 'age' not in payload or 'gender' not in payload:
       return False
     else:
       return True
