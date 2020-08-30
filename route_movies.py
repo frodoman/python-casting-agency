@@ -83,13 +83,12 @@ def add_movie_routes(app:Flask):
 
         if movie is not None:
             found = movie.format()
+            return jsonify({
+                "success": True, 
+                "movie": found
+            })
         else: 
             abort(404)
-            
-        return jsonify({
-            "success": True, 
-            "movie": found
-        })
 
 
     # Update a movie

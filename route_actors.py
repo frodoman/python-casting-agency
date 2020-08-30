@@ -65,24 +65,23 @@ def add_actor_routes(app:Flask):
         actor = Actors.query.get(actor_id)
 
         if actor is not None:
-            found = actor.format()
-        
-        return jsonify({
-            "success": True, 
-            "actor": found
-        })
+            found = actor.format()        
+            return jsonify({
+                "success": True, 
+                "actor": found
+            })
+        else:
+            abort(404)
 
 
     # Search actor by name
     @app.route('/api/actors/search', methods=['POST'])
     def search_actors():
-        print("Search ...")
         params = request.json
         if not 'name' in params:
             abort(422)
 
         search_phase = "%" + params['name'] + "%"
-        print("Search : ", search_phase)
 
         actors = []
         found = Actors.query.filter(Actors.name.ilike(search_phase)).order_by(Actors.name).all()

@@ -13,18 +13,7 @@ class ActorTest(BaseTest):
     def setUp(self):
         """Define test variables and initialize app."""
         super().setUp()
-
-        self.mock_movie = {
-            'title':'Movie Title Mock',
-            'release_date': "2020-10-10"
-        }
-
-        self.mock_actor = {
-            'name': 'Mock actor name',
-            'gender': 'M', 
-            'age': 22
-        }
-
+        
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
@@ -36,45 +25,7 @@ class ActorTest(BaseTest):
     def tearDown(self):
         """Executed after reach test"""
         pass
-
     
-    # Actors: helper functions
-    def get_mock_actor_from_db(self): 
-        url = '/api/actors/search' 
-        param = {'name': 'Mock actor name'}
-
-        res = self.client().post(url, json=param)
-        actors = json.loads(res.data)["actors"]
-
-        if len(actors) > 0: 
-            return actors[0]
-        else:
-            return None
-
-
-    def delete_mock_actor_in_db(self):
-        actor = self.get_mock_actor_from_db()
-
-        if actor is not None:
-            actor_id = actor['id']
-            print("Mock actor id: {}".format(actor_id))
-            res = self.client().delete('/api/actors/{}'.format(actor_id), headers=self.admin_header)
-            return res
-        else:
-            return None
-
-
-    def add_mock_actor_to_db(self, header):
-        res = self.client().post('/api/actors/create', json = self.mock_actor, headers=header)
-        return res
-
-
-    def add_mock_actor_if_not_exist(self):
-        actor = self.get_mock_actor_from_db()
-
-        if actor is None:
-            self.add_mock_actor_to_db(header=self.admin_header)
-
 
      # Actors: Create - ok
     def test_create_actor_ok(self):
@@ -151,6 +102,8 @@ class ActorTest(BaseTest):
 
         self.test_search_actors_ok(json_param = {"name":"name - Updated"})
 
+        self.delete_mock_actor_in_db()
+
 
     # Actors: Update - failed
     def test_update_actor_failed(self):
@@ -169,6 +122,51 @@ class ActorTest(BaseTest):
         res = self.client().patch(url, json=actor, headers = self.user_header)
         self.assertEquals(res.status_code, 403)
 
+        self.delete_mock_actor_in_db()
+
+    # Actors: Delete - ok
+    def test_delete_actor(self):
+        
+        # Role: Admin - ok
+        self.delete_actor_ok(header=self.admin_header)
+
+        # Role: Manager - ok
+        self.delete_actor_ok(header=self.manager_header)
+
+
+    def delete_actor_ok(self, header):
+        self.add_mock_actor_if_not_exist()
+        actor = self.get_mock_actor_from_db()
+
+        actor_id = actor['id']
+        url = '/api/actors/{}'.format(actor_id)
+
+        # Role: Admin - ok
+        res = self.client().delete(url, headers = header)
+        self.assertEquals(res.status_code, 200)
+
+        # Should not found it by id
+        res = self.client().get(url, headers = header)
+        self.assertEquals(res.status_code, 404)
+
+        self.delete_mock_actor_in_db()
+    
+
+    # Actors: Delete - failed
+    def test_delete_actor_failed(self):
+        self.add_mock_actor_if_not_exist()
+        actor = self.get_mock_actor_from_db()
+
+        actor_id = actor['id']
+        url = '/api/actors/{}'.format(actor_id)
+
+        # Missing JWT token - not allowed
+        res = self.client().delete(url)
+        self.assertEquals(res.status_code, 401)
+
+        # Role: user - not allowed
+        res = self.client().delete(url, headers = self.user_header)
+        self.assertEquals(res.status_code, 403)
 
 
 # Make the tests conveniently executable

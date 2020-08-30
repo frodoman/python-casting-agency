@@ -14,17 +14,6 @@ class MovieTest(BaseTest):
         #setup_test_case(test=self)
         super().setUp()
 
-        self.mock_movie = {
-            'title':'Movie Title Mock',
-            'release_date': "2020-10-10"
-        }
-
-        self.mock_actor = {
-            'name': 'Mock actor name',
-            'gender': 'M', 
-            'age': 22
-        }
-
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
@@ -39,44 +28,6 @@ class MovieTest(BaseTest):
         pass
 
     
-    # Movies: helper functions
-    def get_mock_movie_from_db(self): 
-        url = '/api/movies/search' 
-        param = {'title': 'Movie Title Mock'}
-
-        res = self.client().post(url, json=param)
-        movies = json.loads(res.data)["movies"]
-
-        if len(movies) > 0: 
-            return movies[0]
-        else:
-            return None
-
-
-    def delete_mock_movie_in_db(self):
-        movie = self.get_mock_movie_from_db()
-
-        if movie is not None:
-            movie_id = movie['id']
-            print("Mock movie id: {}".format(movie_id))
-            res = self.client().delete('/api/movies/{}'.format(movie_id), headers=self.admin_header)
-            return res
-        else:
-            return None
-
-
-    def add_mock_movie_to_db(self):
-        res = self.client().post('/api/movies/create', json = self.mock_movie, headers=self.admin_header)
-        return res
-
-
-    def add_mock_movie_if_not_exist(self):
-        movie = self.get_mock_movie_from_db()
-
-        if movie is None:
-            self.add_mock_movie_to_db()
-
-
     # Movies: Create - ok
     def test_create_one_movie_ok(self):
         self.delete_mock_movie_in_db()
@@ -149,6 +100,7 @@ class MovieTest(BaseTest):
         self.assertEquals(res.status_code, 200)
 
         self.test_search_movies_ok(json_param = {"title":"title - Updated"})
+        self.delete_mock_movie_in_db()
 
 
     # Movies: Update - failed
@@ -167,6 +119,7 @@ class MovieTest(BaseTest):
         # Role: user - not allowed
         res = self.client().patch(url, json=movie_id, headers = self.user_header)
         self.assertEquals(res.status_code, 403)
+        self.delete_mock_movie_in_db()
 
 
     # Movies: Delete - ok
@@ -184,7 +137,8 @@ class MovieTest(BaseTest):
         # Should not found it by id
         res = self.client().get(url, headers = self.admin_header)
         self.assertEquals(res.status_code, 404)
-    
+
+        self.delete_mock_movie_in_db()
 
     # Movies: Delete - failed
     def test_delete_movie_failed(self):
@@ -202,6 +156,7 @@ class MovieTest(BaseTest):
         res = self.client().delete(url, headers = self.user_header)
         self.assertEquals(res.status_code, 403)
 
+        self.delete_mock_movie_in_db()
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

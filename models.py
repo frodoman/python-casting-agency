@@ -41,11 +41,17 @@ class Actors(db.Model):
     self.gender = gender
   
   def format(self):
+
+    movie_ids = []
+    if len(self.movies) > 0:
+      movie_ids = [movie.id for movie in self.movies]
+
     return {
       'id': self.id, 
       'name': self.name,
       'age': self.age,
-      'gender': self.gender
+      'gender': self.gender,
+	  'movies': movie_ids
     }
 
   @staticmethod

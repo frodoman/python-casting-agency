@@ -2,6 +2,7 @@ import os
 import unittest
 from casting_agency_app import *
 
+
 # Put a new JWT token here if expired
 
 # Role: Executive Producer (Admin) JWT token
@@ -13,8 +14,10 @@ JWT_TOKEN_MANAGER = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkE4UUw4Qy00Y0R
 # Role: Casting Assistant (User) JWT token
 JWT_TOKEN_USER = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkE4UUw4Qy00Y0RoWG5iTlhIS3lJSiJ9.eyJpc3MiOiJodHRwczovL2NvZmZlZS14LmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw1ZjNmZjFjNjMwNDYwYzAwNjc4NTUwYWEiLCJhdWQiOiJjYXN0aW5nLWFnZW5jeSIsImlhdCI6MTU5ODgwMDIwNywiZXhwIjoxNTk4ODg2NjA3LCJhenAiOiJycldqWjViM0VnSlBSV3VZaUVJTEo2azFnZVJuc01iaSIsInNjb3BlIjoiIiwicGVybWlzc2lvbnMiOlsicmVhZDphY3RvcnMiLCJyZWFkOm1vdmllcyJdfQ.BkdyapV1mzDzr9mOWT5gmxtnS86qpdIhNUow4MeFCIGLG-q6S2RPgjVW-f0UxDK53WL351dDZTk5AZzunq7twDvHPA2VwsBD7HDrJi1FBLb9vDRr5krVqgN3WOXUj_fLdf540Qp3a-1LEGGi8Ta_FCViC52msA5YLRrqTEbdd8WBcN-rGq7tNIv08XKnX4meu6EoG6tPHDBP2PRd1y4B-FT-YEHG3MCWD_oneYftmMo4MVxz4q9rwH3dQH6TSrahonspu6MTHtXSMWaa0GLIrL8GPmeuDzWWEDQ28kR2gMe-xVYdhdowxh4jcJ6Y3gzD_Hu3FVfRjjtwKS9Tot_aww'
 
+
 class BaseTest(unittest.TestCase):
     
+
     def setUp(self):
         self.app = create_app()
         self.client = self.app.test_client
@@ -27,9 +30,125 @@ class BaseTest(unittest.TestCase):
         self.manager_header = self.make_header(JWT_TOKEN_MANAGER)
         self.user_header = self.make_header(JWT_TOKEN_USER)
 
+        self.mock_movie = {
+            'title':'Movie Title Mock',
+            'release_date': "2020-10-10"
+        }
     
+        self.mock_actor = {
+            'name': 'Mock actor name',
+            'gender': 'M', 
+            'age': 22
+        }
+    
+
     def make_header(self, token):
         return {
         'Authorization': 'Bearer ' + token
        }
+    
+    # Movies: helper functions
+    def get_mock_movie_from_db(self): 
+        url = '/api/movies/search' 
+        param = {'title': 'Movie Title Mock'}
+
+        res = self.client().post(url, json=param)
+        movies = json.loads(res.data)["movies"]
+
+        if len(movies) > 0: 
+            return movies[0]
+        else:
+            return None
+
+
+    def delete_mock_movie_in_db(self):
+        movie = self.get_mock_movie_from_db()
+
+        if movie is not None:
+            movie_id = movie['id']
+            print("Mock movie id: {}".format(movie_id))
+            res = self.client().delete('/api/movies/{}'.format(movie_id), headers=self.admin_header)
+            return res
+        else:
+            return None
+
+
+    def add_mock_movie_to_db(self):
+        res = self.client().post('/api/movies/create', json = self.mock_movie, headers=self.admin_header)
+        return res
+
+
+    def add_mock_movie_if_not_exist(self):
+        movie = self.get_mock_movie_from_db()
+
+        if movie is None:
+            self.add_mock_movie_to_db()
+    
+
+    # Actors: helper functions
+    def get_mock_actor_from_db(self): 
+        url = '/api/actors/search' 
+        param = {'name': 'Mock actor name'}
+
+        res = self.client().post(url, json=param)
+        actors = json.loads(res.data)["actors"]
+
+        if len(actors) > 0: 
+            return actors[0]
+        else:
+            return None
+
+
+    def delete_mock_actor_in_db(self):
+        actor = self.get_mock_actor_from_db()
+
+        if actor is not None:
+            actor_id = actor['id']
+            print("Mock actor id: {}".format(actor_id))
+            res = self.client().delete('/api/actors/{}'.format(actor_id), headers=self.admin_header)
+            return res
+        else:
+            return None
+
+
+    def add_mock_actor_to_db(self, header):
+        res = self.client().post('/api/actors/create', json = self.mock_actor, headers=header)
+        return res
+
+
+    def add_mock_actor_if_not_exist(self):
+        actor = self.get_mock_actor_from_db()
+
+        if actor is None:
+            self.add_mock_actor_to_db(header=self.admin_header)
+
+
+    def test_adding_movie_actor_relation(self):
+        self.add_mock_movie_if_not_exist()
+        movie = self.get_mock_movie_from_db()
         
+        movie['title'] = "Mock movie title - Add relations!"
+        movie_id = movie['id']
+        movie['actors'] = [2, 3]
+
+        movie_url = '/api/movies/{}'.format(movie_id)
+
+        # add actor [2, 3] to mock movie in database
+        res = self.client().patch(movie_url, json=movie, headers=self.admin_header)
+        self.assertEquals(res.status_code, 200)
+        
+        # movie_id should be added to actor 2's movie list
+        res = self.client().get('/api/actors/2', headers=self.admin_header)
+        actor = json.loads(res.data)['actor']
+        self.assertIsNotNone(actor)
+        self.assertTrue('movies' in actor)
+
+        movie_ids = actor['movies']
+        self.assertTrue(movie_id in movie_ids)
+
+        self.delete_mock_movie_in_db()
+
+
+# Make the tests conveniently executable
+if __name__ == "__main__":
+    unittest.main()
