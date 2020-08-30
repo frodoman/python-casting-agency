@@ -35,6 +35,7 @@ class MovieTest(BaseTest):
 
     def tearDown(self):
         """Executed after reach test"""
+        self.delete_mock_movie_in_db()
         pass
 
     
@@ -76,7 +77,7 @@ class MovieTest(BaseTest):
             self.add_mock_movie_to_db()
 
 
-    # Movies: get all
+    # Movies: Read - get all
     def test_get_all_movies(self):
         res = self.client().get('/api/movies')
         self.assertEqual(res.status_code, 200)
@@ -85,7 +86,26 @@ class MovieTest(BaseTest):
         self.assertTrue(len(data['movies'])>0)
 
 
-    # Movies: create/add - ok
+    # Movies: Read - search ok
+    def test_search_movies_ok(self, json_param=None):
+        param = {"title":"Movie"}
+        if json_param is not None:
+            param = json_param
+
+        res = self.client().post('/api/movies/search', json=param, headers=self.admin_header)
+        self.assertEqual(res.status_code, 200)
+
+        data = json.loads(res.data)
+        self.assertTrue(len(data['movies'])>0)
+
+
+    # Movies: Read - search failed
+    def test_search_movies_failed(self):
+        param = {}
+        res = self.client().post('/api/movies/search', json=param)
+        self.assertNotEqual(res.status_code, 200)
+
+    # Movies: Create - ok
     def test_create_one_movie_ok(self):
         self.delete_mock_movie_in_db()
 
@@ -93,7 +113,7 @@ class MovieTest(BaseTest):
         self.assertEqual(res.status_code, 200)
 
 
-    # Movies: create/add - faliure
+    # Movies: Create - faliure
     def test_create_one_movie_failed(self):
         url = '/api/movies/create'
 
@@ -111,7 +131,7 @@ class MovieTest(BaseTest):
         self.assertEquals(res.status_code, 403)
 
 
-    # Movies: Updates - ok
+    # Movies: Update - ok
     def test_update_movie_ok(self):
         self.add_mock_movie_if_not_exist()
         movie = self.get_mock_movie_from_db()
@@ -130,7 +150,7 @@ class MovieTest(BaseTest):
         self.test_search_movies_ok(json_param = {"title":"title - Updated"})
 
 
-    # Movies: Updates - failed
+    # Movies: Update - failed
     def test_update_movie_failed(self):
         self.add_mock_movie_if_not_exist()
         movie = self.get_mock_movie_from_db()
@@ -146,25 +166,6 @@ class MovieTest(BaseTest):
         # Role: user - not allowed
         res = self.client().patch(url, json=movie_id, headers = self.user_header)
         self.assertEquals(res.status_code, 403)
-
-
-    # Movies: search
-    def test_search_movies_ok(self, json_param=None):
-        param = {"title":"Movie"}
-        if json_param is not None:
-            param = json_param
-
-        res = self.client().post('/api/movies/search', json=param, headers=self.admin_header)
-        self.assertEqual(res.status_code, 200)
-
-        data = json.loads(res.data)
-        self.assertTrue(len(data['movies'])>0)
-
-
-    def test_search_movies_failed(self):
-        param = {}
-        res = self.client().post('/api/movies/search', json=param)
-        self.assertNotEqual(res.status_code, 200)
 
 
     # Movies: Delete - ok
