@@ -47,6 +47,7 @@ class BaseTest(unittest.TestCase):
         'Authorization': 'Bearer ' + token
        }
     
+
     # Movies: helper functions
     def get_mock_movie_from_db(self): 
         url = '/api/movies/search' 
@@ -123,6 +124,7 @@ class BaseTest(unittest.TestCase):
             self.add_mock_actor_to_db(header=self.admin_header)
 
 
+    # Test relations between Movies and Actors
     def test_adding_movie_actor_relation(self):
         self.add_mock_movie_if_not_exist()
         movie = self.get_mock_movie_from_db()
