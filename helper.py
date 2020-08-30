@@ -2,12 +2,12 @@ from datetime import datetime
 import dateutil.parser
 
 
-def arrayToString(stringlist): 
+def arrayToString(stringlist):
     if len(stringlist) == 0:
         return ""
 
     result = ""
-    for oneString in stringlist: 
+    for oneString in stringlist:
         result += (oneString + ",")
 
     return result
@@ -29,5 +29,5 @@ def format_datetime(date_str):
 
 
 def dateTimeToString(dateTime):
-    format="%Y-%m-%d"
+    format = "%Y-%m-%d"
     return dateTime.strftime(format)
