@@ -77,6 +77,32 @@ class MovieTest(BaseTest):
             self.add_mock_movie_to_db()
 
 
+    # Movies: Create - ok
+    def test_create_one_movie_ok(self):
+        self.delete_mock_movie_in_db()
+
+        res = self.add_mock_movie_to_db()
+        self.assertEqual(res.status_code, 200)
+
+
+    # Movies: Create - faliure
+    def test_create_one_movie_failed(self):
+        url = '/api/movies/create'
+
+        # not authorized
+        res = self.client().post(url, json = self.mock_movie)
+        self.assertNotEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 401)
+
+        # not allowed for manager 
+        res = self.client().post(url, json=self.mock_movie, headers=self.manager_header)
+        self.assertEquals(res.status_code, 403)
+
+        # not allowed for user
+        res = self.client().post(url, json=self.mock_movie, headers=self.user_header)
+        self.assertEquals(res.status_code, 403)
+
+
     # Movies: Read - get all
     def test_get_all_movies(self):
         res = self.client().get('/api/movies')
@@ -104,31 +130,6 @@ class MovieTest(BaseTest):
         param = {}
         res = self.client().post('/api/movies/search', json=param)
         self.assertNotEqual(res.status_code, 200)
-
-    # Movies: Create - ok
-    def test_create_one_movie_ok(self):
-        self.delete_mock_movie_in_db()
-
-        res = self.add_mock_movie_to_db()
-        self.assertEqual(res.status_code, 200)
-
-
-    # Movies: Create - faliure
-    def test_create_one_movie_failed(self):
-        url = '/api/movies/create'
-
-        # not authorized
-        res = self.client().post(url, json = self.mock_movie)
-        self.assertNotEqual(res.status_code, 200)
-        self.assertEqual(res.status_code, 401)
-
-        # not allowed for manager 
-        res = self.client().post(url, json=self.mock_movie, headers=self.manager_header)
-        self.assertEquals(res.status_code, 403)
-
-        # not allowed for user
-        res = self.client().post(url, json=self.mock_movie, headers=self.user_header)
-        self.assertEquals(res.status_code, 403)
 
 
     # Movies: Update - ok

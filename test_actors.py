@@ -64,8 +64,8 @@ class MovieTest(BaseTest):
             return None
 
 
-    def add_mock_actor_to_db(self):
-        res = self.client().post('/api/actors/create', json = self.mock_actor, headers=self.admin_header)
+    def add_mock_actor_to_db(self, header):
+        res = self.client().post('/api/actors/create', json = self.mock_actor, headers=header)
         return res
 
 
@@ -73,7 +73,34 @@ class MovieTest(BaseTest):
         actor = self.get_mock_actor_from_db()
 
         if actor is None:
-            self.add_mock_actor_to_db()
+            self.add_mock_actor_to_db(header=self.admin_header)
+
+
+     # Actors: Create - ok
+    def test_create_actor_ok(self):
+        self.delete_mock_actor_in_db()
+
+        # ok for Admin
+        res = self.add_mock_actor_to_db(header=self.admin_header)
+        self.assertEqual(res.status_code, 200)
+
+        # ok for manager 
+        res = self.add_mock_actor_to_db(header=self.manager_header)
+        self.assertEquals(res.status_code, 200)
+
+
+    # Actors: Create - faliure
+    def test_create_actor_failed(self):
+        url = '/api/actors/create'
+
+        # not authorized
+        res = self.client().post(url, json = self.mock_actor)
+        self.assertNotEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 401)
+
+        # not allowed for user
+        res = self.client().post(url, json=self.mock_actor, headers=self.user_header)
+        self.assertEquals(res.status_code, 403)
 
 
     # Actors: Read - get all
@@ -86,23 +113,26 @@ class MovieTest(BaseTest):
 
 
     # Actors: Read - search ok
-    def test_search_movies_ok(self, json_param=None):
-        param = {"name":"Movie"}
+    def test_search_actors_ok(self, json_param=None):
+        param = {"name":"Actor"}
         if json_param is not None:
             param = json_param
 
-        res = self.client().post('/api/movies/search', json=param, headers=self.admin_header)
+        res = self.client().post('/api/actors/search', json=param, headers=self.admin_header)
         self.assertEqual(res.status_code, 200)
 
         data = json.loads(res.data)
-        self.assertTrue(len(data['movies'])>0)
+        self.assertTrue(len(data['actors'])>0)
 
 
     # Actors: Read - search failed
-    def test_search_movies_failed(self):
+    def test_search_actors_failed(self):
         param = {}
-        res = self.client().post('/api/movies/search', json=param)
+        res = self.client().post('/api/actors/search', json=param)
         self.assertNotEqual(res.status_code, 200)
+
+
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

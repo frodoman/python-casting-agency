@@ -8,9 +8,9 @@ from auth import *
 def add_actor_routes(app:Flask):
 
     # Create an actor
-    @app.route('/api/actor', methods=['POST'])
+    @app.route('/api/actors/create', methods=['POST'])
     @requires_auth(Permission.POST_ACTORS)
-    def create_an_actor():
+    def create_an_actor(jwt):
         payload = request.json
 
         if not Actors.is_valide_payload(payload):
