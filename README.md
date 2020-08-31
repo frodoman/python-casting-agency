@@ -109,23 +109,24 @@ Currently the API can return these error if failed:
 ### GET /api/movies
 * General
     - Return a list of available movies 
-* Role required: Any.
+* Authorization needed: No
 * Sample 
     ```bash
     curl http://127.0.0.1:5000/api/movies
     ```
+* Response: 
     ```bash 
     {
         "success": true,
         "movies": [
             {
-            "actors": [], 
+            "actors": [4, 5], 
             "id": 3, 
             "release_date": "2020-12-01", 
             "title": "Movie B"
             }, 
             {
-            "actors": [], 
+            "actors": [6,9], 
             "id": 5, 
             "release_date": "2020-12-02", 
             "title": "Movie E"
@@ -134,22 +135,194 @@ Currently the API can return these error if failed:
     }
     ```
 
+### GET /api/actors
+* General
+    - Return a list of available actors
+* Authorization needed: No
+* Sample 
+    ```bash
+    curl http://127.0.0.1:5000/api/actors
+    ```
+* Response: 
+    ```bash
+    {
+    "actors": [
+        {
+        "age": 39, 
+        "gender": "F", 
+        "id": 2, 
+        "movies": [1, 2], 
+        "name": "Actor Two"
+        }, 
+        {
+        "age": 19, 
+        "gender": "F", 
+        "id": 3, 
+        "movies": [3, 5], 
+        "name": "Actor Three"
+        }
+    ], 
+    "success": true
+    }
+    ```
+
 ### GET /api/movies/<movie_id>
 * General
-    - Return a details of a movie by movie id
-* Role required: Casting Assistant
+    - Return details of a movie by id
+* Authorization needed: Yes
 * Sample 
     ```bash
     curl -H "Authorization: Bearer <ACCESS_TOKEN>" http://127.0.0.1:5000/api/movies/3
     ```
+* Response: 
     ```bash
     {
         "movie": {
-            "actors": [],
+            "actors": [2, 3],
             "id": 3,
             "release_date": "2020-12-01",
             "title": "Movie B"
         },
         "success": true
+    }
+    ```
+
+
+### GET /api/actors/<actor_id>
+* General
+    - Return details of an actor by id
+* Authorization needed: Yes
+* Sample 
+    ```bash
+    curl -H "Authorization: Bearer <ACCESS_TOKEN>" http://127.0.0.1:5000/api/actors/3
+    ```
+* Response:
+    ```bash 
+    {
+        "success": true, 
+        "actor": {
+            "age": 19, 
+            "gender": "F", 
+            "id": 3, 
+            "movies": [3, 5], 
+            "name": "Actor Three"
+        }
+    }   
+    ```
+
+### POST /api/movies/create 
+* General
+    - Create a new movie 
+* Authorization needed: Yes
+* Sample: 
+     ```bash
+    curl -X POST -H "Authorization: Bearer <ACCESS_TOKEN>" --data '{ "title":"Movie title", "release_date":"2020-10-10" }' http://127.0.0.1:5000/api/movies/create
+    ```
+* Response: 
+    ```bash
+    {
+        "success": true,
+        "movie": { 
+            "title":"Movie title", 
+            "release_date":"2020-10-10"
+        }
+    }
+    ```
+
+### POST /api/actors/create 
+* General
+    - Create a new actor 
+* Authorization needed: Yes
+* Sample: 
+     ```bash
+    curl -X POST -H "Authorization: Bearer <ACCESS_TOKEN>" --data '{ "name":"Actor name", "age": 22, "gender": "M" }' http://127.0.0.1:5000/api/actors/create
+    ```
+* Response: 
+    ```bash
+    {
+        "success": true,
+        "actor": { 
+            "success": success,
+            "actor":  {
+                "name":"Actor name", 
+                "age": 22, 
+                "gender": "M"
+            }
+        }
+    }
+    ```
+
+
+### PATCH /api/movies/<movie_id>
+* General: 
+    - Update a movie for the provided id
+* Authorization needed: Yes
+* Sample: 
+     ```bash
+    curl -X PATCH -H "Authorization: Bearer <ACCESS_TOKEN>" --data '{ "title":"Movie title", "release_date":"2020-10-10" }' http://127.0.0.1:5000/api/movies/3
+    ```
+* Response:
+    ```bash
+    {
+        "update": true,
+        "movie": { 
+            "title":"Movie title", 
+            "release_date":"2020-10-10"
+        },
+        "movie_id": 3
+    }
+    ```
+
+### PATCH /api/actors/<actor_id>
+* General: 
+    - Update an actor for the provided id 
+* Authorization needed: Yes
+* Sample: 
+     ```bash
+    curl -X PATCH -H "Authorization: Bearer <ACCESS_TOKEN>" --data '{ "name":"Actor name", "age": 22, "gender": "M", "movies": [3, 4, 5]}'  http://127.0.0.1:5000/api/actors/3
+    ```
+* Response:
+    ```bash
+    {
+        "update": true,
+        "actor": { 
+            "name":"Actor name", 
+            "age": 22, 
+            "gender": "M", 
+            "movies": [3, 4, 5] 
+        },
+        "actor_id": actor_id
+    }
+    ```
+
+### DELETE /api/movies/<movie_id>
+* General: 
+    - Delete a movie with the provided id
+* Authorization needed: Yes
+* Sample: 
+     ```bash
+    curl -X DELETE -H "Authorization: Bearer <ACCESS_TOKEN>" http://127.0.0.1:5000/api/movies/3
+    ```
+    Response:
+    ```bash
+    {
+        "delete": true,
+        "movie_id": 3
+    }
+    ```
+
+### DELETE /api/actors/<actor_id>
+* General: 
+    - Delete an actor with the provided id
+* Authorization needed: Yes
+* Sample: 
+     ```bash
+    curl -X DELETE -H "Authorization: Bearer <ACCESS_TOKEN>" http://127.0.0.1:5000/api/actors/3
+    ```
+    Response:
+    ```bash
+    {
+        "delete": true,
+        "actor_id": 3
     }
     ```
