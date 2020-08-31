@@ -140,7 +140,7 @@ Currently the API can return these error if failed:
 * Role required: Casting Assistant
 * Sample 
     ```bash
-    curl http://127.0.0.1:5000/api/movies/3
+    curl -H "Authorization: Bearer <ACCESS_TOKEN>" http://127.0.0.1:5000/api/movies/3
     ```
     ```bash
     {
