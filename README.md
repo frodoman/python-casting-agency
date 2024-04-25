@@ -1,5 +1,16 @@
 # Casting Agency Project
 
+## Tech stacks used in this project
+* Python 
+* Flask
+* PostgreSQL
+* SQLAlchemy
+* RESTful API Design
+* Auth0
+* Roles-based access control
+* TDD (Unit Tests)
+
+
 ## Motivation
 
 The Casting Agency models a company that is responsible for creating movies and managing and assigning actors to those movies. This is a system to simplify and streamline the process of creating and managing relationships between actors and movies. 
